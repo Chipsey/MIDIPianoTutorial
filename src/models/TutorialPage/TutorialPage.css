@@ -1,0 +1,34 @@
+#piano {
+  display: flex;
+  position: relative;
+}
+
+#pianoRoll {
+  width: 100vw;
+  height: 80vh;
+}
+
+.key {
+  height: 15rem;
+  width: 3rem;
+  border-left: 1px solid black;
+  border-top: 3px solid black;
+}
+
+.white {
+  background-color: white;
+  position: relative;
+  z-index: 0;
+}
+
+.black {
+  width: 2rem;
+  height: 7rem;
+  background-color: black;
+  position: static;
+  left: 75%;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  z-index: 1;
+  border: 1px solid black;
+}
