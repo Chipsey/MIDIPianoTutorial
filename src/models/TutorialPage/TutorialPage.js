@@ -15,14 +15,46 @@ const TutorialPage = ({ midis }) => {
     }
   }, [midis]);
 
+  const noteWidth = 3 * 16;
+  const timeUnit = 300;
+  const maxWidth = 400;
+
+  const getNoteYPosition = (midiNote) => {
+    return (midiNote - 21) * 16 + midiNote - 21;
+  };
+
   return (
     <div>
       {isLoading ? (
         <div>Loading</div>
       ) : (
         <div>
-          <canvas id="pianoRoll"></canvas>
+          <div id="pianoRoll">
+            {notes.map((note, index) => {
+              const startY = note.time * timeUnit; // Horizontal position based on time
+              const width = note.duration * timeUnit; // Width of the note block based on duration
+              const startX = getNoteYPosition(note.midi); // Vertical position based on MIDI note
+
+              return (
+                <div
+                  key={index}
+                  className="note-block"
+                  style={{
+                    position: "absolute",
+                    left: `${startX}px`,
+                    top: `${startY}px`,
+                    width: `${noteWidth}px`,
+                    height: `${width}px`,
+                    backgroundColor: "#75cbd9",
+                    borderRadius: "2rem",
+                  }}
+                ></div>
+              );
+            })}
+          </div>
+
           <div id="piano">
+            {/* Piano keys representation */}
             <div className="key white" data-note="21"></div>
             <div className="key black" data-note="22"></div>
             <div className="key white" data-note="23"></div>

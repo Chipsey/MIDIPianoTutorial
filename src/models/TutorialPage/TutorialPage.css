@@ -1,11 +1,13 @@
 #piano {
   display: flex;
-  position: relative;
+  position: fixed;
+  background-color: white;
 }
 
 #pianoRoll {
   width: 100vw;
   height: 80vh;
+  z-index: 0;
 }
 
 .key {
@@ -13,12 +15,13 @@
   width: 3rem;
   border-left: 1px solid black;
   border-top: 3px solid black;
+  z-index: 2;
 }
 
 .white {
   background-color: white;
   position: relative;
-  z-index: 0;
+  z-index: 2;
 }
 
 .black {
@@ -26,9 +29,8 @@
   height: 7rem;
   background-color: black;
   position: static;
-  left: 75%;
   margin-left: -1rem;
   margin-right: -1rem;
-  z-index: 1;
+  z-index: 3;
   border: 1px solid black;
 }
