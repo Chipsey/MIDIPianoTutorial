@@ -16,7 +16,7 @@ const theme = createTheme({
   },
 });
 
-const Home = () => {
+const UploadPage = ({ onMidiDataParsed }) => {
   const fileInputRef = useRef();
 
   const handleUploadClick = () => {
@@ -26,7 +26,6 @@ const Home = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      console.log("Uploaded file:", file.name);
       parseMidi(file);
     }
   };
@@ -34,7 +33,8 @@ const Home = () => {
   const parseMidi = async (file) => {
     const arrayBuffer = await file.arrayBuffer();
     const midi = new Midi(arrayBuffer);
-    console.log(midi.tracks);
+    // console.log(midi.tracks);
+    onMidiDataParsed(midi.tracks);
   };
 
   return (
@@ -46,7 +46,7 @@ const Home = () => {
             alignItems: "center",
             justifyContent: "center",
             textAlign: "center",
-            paddingTop: "40vh",
+            marginTop: "40vh",
           }}
         >
           <div className="d-block">
@@ -58,7 +58,6 @@ const Home = () => {
               />
             </div>
             <div>
-              {/* Hidden file input element */}
               <input
                 type="file"
                 accept=".mid"
@@ -66,7 +65,6 @@ const Home = () => {
                 style={{ display: "none" }}
                 onChange={handleFileChange}
               />
-              {/* Upload button */}
               <Button
                 variant="outlined"
                 startIcon={<CloudUploadIcon />}
@@ -84,4 +82,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default UploadPage;
