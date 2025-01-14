@@ -1,21 +1,21 @@
 #piano {
   display: flex;
   position: fixed;
-  background-color: white;
+  bottom: -0rem;
 }
 
 #pianoRoll {
+  position: relative;
   width: 100vw;
-  height: 80vh;
   z-index: 0;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .key {
-  height: 15rem;
-  width: 3rem;
-  border-left: 1px solid black;
-  border-top: 3px solid black;
   z-index: 2;
+  height: 10rem;
 }
 
 .white {
@@ -25,12 +25,16 @@
 }
 
 .black {
-  width: 2rem;
-  height: 7rem;
   background-color: black;
-  position: static;
-  margin-left: -1rem;
-  margin-right: -1rem;
   z-index: 3;
-  border: 1px solid black;
+  height: 6rem;
+}
+
+@keyframes fallAnimation {
+  0% {
+    top: -100px; /* Start above the screen */
+  }
+  100% {
+    top: 100%; /* End at the bottom of the screen */
+  }
 }
