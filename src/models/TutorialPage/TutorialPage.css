@@ -13,6 +13,23 @@
   flex-direction: column-reverse;
 }
 
+.controllers {
+  position: absolute;
+  z-index: 10;
+  top: 5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.invisible-option {
+  opacity: 0.1;
+  transition: all 500ms ease !important;
+}
+
+.invisible-option:hover {
+  opacity: 1;
+}
+
 .key {
   z-index: 2;
   height: 10rem;
