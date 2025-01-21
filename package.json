@@ -15,7 +15,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.1",
     "react-scripts": "5.0.1",
-    "tone": "^15.0.4",
+    "web-audio-daw": "^4.13.2",
     "web-vitals": "^4.2.4"
   },
   "scripts": {

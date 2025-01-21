@@ -1,21 +1,78 @@
 import { Box, Button, Paper } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./TutorialPage.css";
 import { BLACK_INDEXES, NOTES } from "../../config/const";
+import Wad from "web-audio-daw";
 
 const TutorialPage = ({ midis }) => {
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [leftNotes, setLeftNotes] = useState(null);
   const [rightNotes, setRightNotes] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [fps, setFps] = useState(50);
+  const [totalDistance, setTotalDistance] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentRightNoteIndex, setCurrentRightNoteIndex] = useState(-1);
+  const [currentLeftNoteIndex, setCurrentLeftNoteIndex] = useState(-1);
+  const noteWidth = screenWidth / 57;
+  const timeUnit = 300;
+  const [currentTime, setCurrentTime] = useState(0);
+  const activeNotes = useRef(new Map());
+
+  const playNote = (note, duration, time) => {
+    try {
+      // Stop all notes if the time mismatch occurs
+      if (currentTime !== time) {
+        activeNotes.current.forEach((noteInstance) => noteInstance.stop());
+        activeNotes.current.clear();
+      }
+
+      setCurrentTime(time);
+
+      const noteInstance = new Wad({ source: "triangle" });
+      noteInstance.play({
+        pitch: note,
+        label: note,
+        env: { hold: duration > 0 ? duration : 0.5 },
+      });
+
+      activeNotes.current.set(note, noteInstance);
+    } catch (error) {
+      console.error("Error playing note:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const interval = 1000 / fps;
+    const distancePerTick = (timeUnit * interval) / 1000;
+
+    const intervalId = setInterval(() => {
+      setTotalDistance((prevDistance) => prevDistance + distancePerTick);
+    }, interval);
+
+    return () => clearInterval(intervalId);
+  }, [isPlaying, timeUnit, fps]);
+
+  const togglePlaying = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const stop = () => {
+    setIsPlaying(false);
+    setTotalDistance(0);
+    setCurrentLeftNoteIndex(-1);
+    setCurrentRightNoteIndex(-1);
+  };
 
   useEffect(() => {
     if (midis && midis.length > 0) {
       setIsLoading(true);
-      setRightNotes(midis[0]?.notes);
+      setRightNotes(midis[1]?.notes);
       if (midis.length > 1) {
-        setLeftNotes(midis[1]?.notes);
+        setLeftNotes(midis[2]?.notes);
       }
       setIsLoading(false);
     }
@@ -30,9 +87,6 @@ const TutorialPage = ({ midis }) => {
       window.removeEventListener("resize", handleResize);
     };
   }, [midis]);
-
-  const noteWidth = screenWidth / 57;
-  const timeUnit = 500;
 
   const getNoteYPosition = (midiNote) => {
     const isBlackKey = BLACK_INDEXES.includes(midiNote);
@@ -51,14 +105,24 @@ const TutorialPage = ({ midis }) => {
         <div>Loading</div>
       ) : (
         <div>
-          <div id="pianoRoll">
+          <button onClick={togglePlaying}>Start</button>
+          <button onClick={stop}>Stop</button>
+          <section id="pianoRoll">
             <div style={{ height: "150vh" }}></div>
             {leftNotes?.length > 0 &&
               leftNotes.map((note, index) => {
                 const startY = note.time * timeUnit + 1000;
-                const width = note.duration * timeUnit;
+                const height = note.duration * timeUnit;
                 const startX = getNoteYPosition(note.midi);
-
+                if (
+                  startY - totalDistance < 640 &&
+                  startY - totalDistance > 600 &&
+                  index > currentLeftNoteIndex
+                ) {
+                  setCurrentLeftNoteIndex(index);
+                  // console.log(JSON.stringify(note?.name));
+                  playNote(note?.name, note?.duration);
+                }
                 return (
                   <div
                     key={index}
@@ -66,11 +130,11 @@ const TutorialPage = ({ midis }) => {
                     style={{
                       position: "absolute",
                       left: `${startX}px`,
-                      bottom: `${startY}px`,
+                      bottom: `${startY - totalDistance}px`,
                       width: BLACK_INDEXES.includes(note?.midi)
                         ? `${noteWidth / 1.5}px`
                         : `${noteWidth - 1}px`,
-                      height: `${width}px`,
+                      height: `${height}px`,
                       backgroundColor: "#75cbd9",
                       borderRadius: "0.7rem",
                       fontSize: BLACK_INDEXES.includes(note?.midi)
@@ -81,7 +145,7 @@ const TutorialPage = ({ midis }) => {
                   >
                     <div
                       style={{
-                        top: `${width - 25}px`,
+                        top: `${height - 25}px`,
                         position: "relative",
                         fontWeight: "bold",
                       }}
@@ -94,9 +158,18 @@ const TutorialPage = ({ midis }) => {
             {rightNotes?.length > 0 &&
               rightNotes.map((note, index) => {
                 const startY = note.time * timeUnit + 1000;
-                const width = note.duration * timeUnit;
+                const height = note.duration * timeUnit;
                 const startX = getNoteYPosition(note.midi);
 
+                if (
+                  startY - totalDistance < 640 &&
+                  startY - totalDistance > 600 &&
+                  index > currentRightNoteIndex
+                ) {
+                  setCurrentRightNoteIndex(index);
+                  // console.log(JSON.stringify(note?.name));
+                  playNote(note?.name, note?.duration);
+                }
                 return (
                   <div
                     key={index}
@@ -104,11 +177,11 @@ const TutorialPage = ({ midis }) => {
                     style={{
                       position: "absolute",
                       left: `${startX}px`,
-                      bottom: `${startY}px`,
+                      bottom: `${startY - totalDistance}px`,
                       width: BLACK_INDEXES.includes(note?.midi)
                         ? `${noteWidth / 1.5}px`
                         : `${noteWidth - 1}px`,
-                      height: `${width}px`,
+                      height: `${height}px`,
                       backgroundColor: "#75d97a",
                       borderRadius: "0.7rem",
                       fontSize: BLACK_INDEXES.includes(note?.midi)
@@ -119,7 +192,7 @@ const TutorialPage = ({ midis }) => {
                   >
                     <div
                       style={{
-                        top: `${width - 25}px`,
+                        top: `${height - 25}px`,
                         position: "relative",
                         fontWeight: "bold",
                       }}
@@ -129,9 +202,9 @@ const TutorialPage = ({ midis }) => {
                   </div>
                 );
               })}
-          </div>
+          </section>
 
-          <div className="text-center">
+          <section className="text-center">
             <div id="piano" className="text-center">
               {NOTES.map((note, index, array) => {
                 const prevNote = index > 0 ? array[index - 1] : null;
@@ -176,7 +249,7 @@ const TutorialPage = ({ midis }) => {
                 );
               })}
             </div>
-          </div>
+          </section>
         </div>
       )}
     </div>

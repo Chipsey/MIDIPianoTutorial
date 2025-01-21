@@ -5,10 +5,10 @@
 }
 
 #pianoRoll {
-  position: relative;
+  position: fixed;
   width: 100vw;
   z-index: 0;
-  overflow-y: scroll;
+  overflow: hidden;
   display: flex;
   flex-direction: column-reverse;
 }
