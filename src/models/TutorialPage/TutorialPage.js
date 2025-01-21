@@ -1,11 +1,36 @@
-import { Box, Button, Paper } from "@mui/material";
+import {
+  Box,
+  Button,
+  createTheme,
+  Paper,
+  Slider,
+  Typography,
+} from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import React, { useEffect, useRef, useState } from "react";
 import "./TutorialPage.css";
 import { BLACK_INDEXES, NOTES } from "../../config/const";
 import Wad from "web-audio-daw";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import StopIcon from "@mui/icons-material/Stop";
+import PauseIcon from "@mui/icons-material/Pause";
+import ChangeHistoryIcon from "@mui/icons-material/ChangeHistory";
+import CropSquareIcon from "@mui/icons-material/CropSquare";
+import ExtensionIcon from "@mui/icons-material/Extension";
+import CircleIcon from "@mui/icons-material/Circle";
+import HomeIcon from "@mui/icons-material/Home";
 
 const TutorialPage = ({ midis }) => {
+  const theme = createTheme({
+    palette: {
+      ochre: {
+        main: "#000000",
+        light: "#E9DB5D",
+        dark: "#A29415",
+        contrastText: "#242105",
+      },
+    },
+  });
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [leftNotes, setLeftNotes] = useState(null);
   const [rightNotes, setRightNotes] = useState(null);
@@ -16,9 +41,12 @@ const TutorialPage = ({ midis }) => {
   const [currentRightNoteIndex, setCurrentRightNoteIndex] = useState(-1);
   const [currentLeftNoteIndex, setCurrentLeftNoteIndex] = useState(-1);
   const noteWidth = screenWidth / 57;
-  const timeUnit = 300;
+  const [timeUnit, setTimeUnit] = useState(300);
   const [currentTime, setCurrentTime] = useState(0);
   const activeNotes = useRef(new Map());
+  const [instrument, setInstrument] = useState("sine");
+  const [leftChannel, setLeftChannel] = useState(0);
+  const [rightChannel, setRightChannel] = useState(1);
 
   const playNote = (note, duration, time) => {
     try {
@@ -30,7 +58,7 @@ const TutorialPage = ({ midis }) => {
 
       setCurrentTime(time);
 
-      const noteInstance = new Wad({ source: "triangle" });
+      const noteInstance = new Wad({ source: instrument });
       noteInstance.play({
         pitch: note,
         label: note,
@@ -70,9 +98,11 @@ const TutorialPage = ({ midis }) => {
   useEffect(() => {
     if (midis && midis.length > 0) {
       setIsLoading(true);
-      setRightNotes(midis[1]?.notes);
+      console.log("Channels: " + midis.length);
+
+      setRightNotes(midis[leftChannel]?.notes);
       if (midis.length > 1) {
-        setLeftNotes(midis[2]?.notes);
+        setLeftNotes(midis[rightChannel]?.notes);
       }
       setIsLoading(false);
     }
@@ -86,7 +116,7 @@ const TutorialPage = ({ midis }) => {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [midis]);
+  }, [midis, leftChannel, rightChannel]);
 
   const getNoteYPosition = (midiNote) => {
     const isBlackKey = BLACK_INDEXES.includes(midiNote);
@@ -99,15 +129,216 @@ const TutorialPage = ({ midis }) => {
     );
   };
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      switch (event.code) {
+        case "KeyO": {
+          setIsPlaying(false);
+          break;
+        }
+        case "KeyI":
+        case "KeyS": {
+          stop();
+          break;
+        }
+        case "KeyP":
+        case " ": {
+          setIsPlaying(true);
+          break;
+        }
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isPlaying]);
+
   return (
     <div>
       {isLoading ? (
         <div>Loading</div>
       ) : (
         <div>
-          <button onClick={togglePlaying}>Start</button>
-          <button onClick={stop}>Stop</button>
           <section id="pianoRoll">
+            <div className="controllers ml-2">
+              <Button
+                variant="outlined"
+                startIcon={isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+                color="ochre"
+                sx={{ fontSize: noteWidth * 0.6, width: noteWidth * 5.5 }}
+                onClick={togglePlaying}
+                className="invisible-option"
+              >
+                {isPlaying ? "Pause" : "Play"}
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<StopIcon />}
+                color="ochre"
+                sx={{ fontSize: noteWidth * 0.6, width: noteWidth * 5.5 }}
+                onClick={stop}
+                className="invisible-option"
+              >
+                Stop
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<HomeIcon />}
+                color="ochre"
+                sx={{ fontSize: noteWidth * 0.6, width: noteWidth * 5.5 }}
+                onClick={() => {
+                  window.location.reload();
+                }}
+                className="invisible-option"
+              >
+                Home
+              </Button>
+              <Paper
+                className="invisible-option"
+                sx={{
+                  marginTop: "2rem",
+                  padding: "1rem",
+                  border: "1px solid black",
+                  background: "rgba(0,0,0,0)",
+                }}
+                elevation={0}
+              >
+                <Typography fontSize={13}>MIDI Size</Typography>
+                <Slider
+                  aria-label="Small steps"
+                  defaultValue={300}
+                  step={20}
+                  marks
+                  color="black"
+                  min={100}
+                  max={500}
+                  valueLabelDisplay="auto"
+                  onChange={(event, value) => setTimeUnit(value)}
+                />
+              </Paper>
+              <Paper
+                className="invisible-option"
+                sx={{
+                  padding: "1rem",
+                  border: "1px solid black",
+                  background: "rgba(0,0,0,0)",
+                }}
+                elevation={0}
+              >
+                <Typography fontSize={13} marginBottom={1}>
+                  Instrument
+                </Typography>
+                <CircleIcon
+                  onClick={() => setInstrument("sine")}
+                  style={{
+                    cursor: "pointer",
+                    opacity: instrument === "sine" ? 1 : 0.3,
+                  }}
+                />
+                <CropSquareIcon
+                  onClick={() => setInstrument("square")}
+                  style={{
+                    cursor: "pointer",
+                    opacity: instrument === "square" ? 1 : 0.3,
+                    marginLeft: noteWidth / 3,
+                  }}
+                />
+                <ExtensionIcon
+                  onClick={() => setInstrument("sawtooth")}
+                  style={{
+                    cursor: "pointer",
+                    opacity: instrument === "sawtooth" ? 1 : 0.3,
+                    marginLeft: noteWidth / 3,
+                  }}
+                />
+                <ChangeHistoryIcon
+                  onClick={() => setInstrument("triangle")}
+                  style={{
+                    cursor: "pointer",
+                    opacity: instrument === "triangle" ? 1 : 0.3,
+                    marginLeft: noteWidth / 3,
+                  }}
+                />
+              </Paper>
+              {midis?.length > 2 && (
+                <>
+                  <Paper
+                    className="invisible-option"
+                    sx={{
+                      padding: "1rem",
+                      border: "1px solid black",
+                      background: "rgba(0,0,0,0)",
+                      marginTop: "2rem",
+                    }}
+                    elevation={0}
+                  >
+                    <Typography fontSize={13} marginBottom={1}>
+                      Select Channel 1
+                    </Typography>
+                    {midis.map((channel, index) => {
+                      return (
+                        <Button
+                          size="small"
+                          disabled={index === rightChannel}
+                          onClick={() => setLeftChannel(index)}
+                          key={index}
+                          variant={
+                            leftChannel === index ? "contained" : "outlined"
+                          }
+                          sx={{
+                            marginRight: "0.3rem",
+                            fontSize: "0.6rem",
+                            paddingLeft: 0,
+                            paddingRight: 0,
+                          }}
+                        >
+                          {index + 1}
+                        </Button>
+                      );
+                    })}
+                  </Paper>
+                  <Paper
+                    className="invisible-option"
+                    sx={{
+                      padding: "1rem",
+                      border: "1px solid black",
+                      background: "rgba(0,0,0,0)",
+                    }}
+                    elevation={0}
+                  >
+                    <Typography fontSize={13} marginBottom={1}>
+                      Select Channel 2
+                    </Typography>
+                    {midis.map((channel, index) => {
+                      return (
+                        <Button
+                          size="small"
+                          disabled={index === leftChannel}
+                          onClick={() => setRightChannel(index)}
+                          key={index}
+                          variant={
+                            rightChannel === index ? "contained" : "outlined"
+                          }
+                          sx={{
+                            marginRight: "0.3rem",
+                            fontSize: "0.6rem",
+                            paddingLeft: 0,
+                            paddingRight: 0,
+                          }}
+                        >
+                          {index + 1}
+                        </Button>
+                      );
+                    })}
+                  </Paper>
+                </>
+              )}
+            </div>
             <div style={{ height: "150vh" }}></div>
             {leftNotes?.length > 0 &&
               leftNotes.map((note, index) => {
