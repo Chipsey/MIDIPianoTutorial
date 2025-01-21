@@ -11,6 +11,7 @@ const Home = () => {
   const handleMidiData = (data) => {
     try {
       setMidiData(data);
+      console.log(midiData);
     } catch (error) {
       console.error(error);
     }
