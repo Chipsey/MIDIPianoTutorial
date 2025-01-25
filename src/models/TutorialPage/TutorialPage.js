@@ -24,14 +24,15 @@ const TutorialPage = ({ midis }) => {
   const theme = createTheme({
     palette: {
       ochre: {
-        main: "#000000",
-        light: "#E9DB5D",
-        dark: "#A29415",
-        contrastText: "#242105",
+        main: "#FFFFF",
+        light: "#FFFFF",
+        dark: "#FFFFF",
+        contrastText: "#FFFFF",
       },
     },
   });
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const noteWidth = screenWidth / 57;
   const [leftNotes, setLeftNotes] = useState(null);
   const [rightNotes, setRightNotes] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,8 +41,7 @@ const TutorialPage = ({ midis }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentRightNoteIndex, setCurrentRightNoteIndex] = useState(-1);
   const [currentLeftNoteIndex, setCurrentLeftNoteIndex] = useState(-1);
-  const noteWidth = screenWidth / 57;
-  const [timeUnit, setTimeUnit] = useState(300);
+  const [timeUnit, setTimeUnit] = useState(200);
   const [currentTime, setCurrentTime] = useState(0);
   const activeNotes = useRef(new Map());
   const [instrument, setInstrument] = useState("sine");
@@ -164,6 +164,7 @@ const TutorialPage = ({ midis }) => {
         <div>Loading</div>
       ) : (
         <div>
+          <div className="tutorial-background"></div>
           <section id="pianoRoll">
             <div className="controllers ml-2">
               <Button
@@ -203,18 +204,20 @@ const TutorialPage = ({ midis }) => {
                 sx={{
                   marginTop: "2rem",
                   padding: "1rem",
-                  border: "1px solid black",
+                  border: "1px solid white",
                   background: "rgba(0,0,0,0)",
+                  color: "white",
+                  maxWidth: noteWidth * 6,
                 }}
                 elevation={0}
               >
                 <Typography fontSize={13}>MIDI Size</Typography>
                 <Slider
                   aria-label="Small steps"
-                  defaultValue={300}
+                  defaultValue={200}
                   step={20}
                   marks
-                  color="black"
+                  color="white"
                   min={100}
                   max={500}
                   valueLabelDisplay="auto"
@@ -225,8 +228,10 @@ const TutorialPage = ({ midis }) => {
                 className="invisible-option"
                 sx={{
                   padding: "1rem",
-                  border: "1px solid black",
+                  border: "1px solid white",
                   background: "rgba(0,0,0,0)",
+                  color: "white",
+                  maxWidth: noteWidth * 6,
                 }}
                 elevation={0}
               >
@@ -271,9 +276,11 @@ const TutorialPage = ({ midis }) => {
                     className="invisible-option"
                     sx={{
                       padding: "1rem",
-                      border: "1px solid black",
+                      border: "1px solid white",
                       background: "rgba(0,0,0,0)",
                       marginTop: "2rem",
+                      color: "white",
+                      maxWidth: noteWidth * 10,
                     }}
                     elevation={0}
                   >
@@ -306,8 +313,10 @@ const TutorialPage = ({ midis }) => {
                     className="invisible-option"
                     sx={{
                       padding: "1rem",
-                      border: "1px solid black",
+                      border: "1px solid white",
                       background: "rgba(0,0,0,0)",
+                      color: "white",
+                      maxWidth: noteWidth * 10,
                     }}
                     elevation={0}
                   >
@@ -376,9 +385,10 @@ const TutorialPage = ({ midis }) => {
                   >
                     <div
                       style={{
-                        top: `${height - 25}px`,
+                        top: `${height - 20}px`,
                         position: "relative",
                         fontWeight: "bold",
+                        color: "black",
                       }}
                     >
                       {note?.name}
@@ -423,9 +433,10 @@ const TutorialPage = ({ midis }) => {
                   >
                     <div
                       style={{
-                        top: `${height - 25}px`,
+                        top: `${height - 20}px`,
                         position: "relative",
                         fontWeight: "bold",
+                        color: "black",
                       }}
                     >
                       {note?.name}
@@ -463,14 +474,14 @@ const TutorialPage = ({ midis }) => {
                       border: "0.5px solid black",
                       borderBottomLeftRadius: "0.2rem",
                       borderBottomRightRadius: "0.2rem",
-                      borderTop: "2px solid black",
+                      borderTop: "2px solid grey",
                     }}
                   >
                     <div
                       style={{
                         position: "relative",
                         top: note?.color === "black" ? "4rem" : "8rem",
-                        color: note?.color === "black" ? "white" : "black",
+                        color: note?.color === "black" ? "grey" : "black",
                         fontWeight: "bold",
                       }}
                     >

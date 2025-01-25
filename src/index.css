@@ -8,6 +8,7 @@ body {
   font-family: Nunito, sans-serif;
   background-color: rgba(250, 247, 246, 255);
   color: rgba(18, 24, 40, 255);
+  background: black;
 }
 
 .background-color-primary {
